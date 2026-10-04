@@ -42,6 +42,33 @@ describe('min', function () {
       new BigNumber(-5))
   })
 
+  it('should return the min of bigints', function () {
+    assert.strictEqual(min(3n), 3n)
+    assert.strictEqual(min(3n, 1n), 1n)
+    assert.strictEqual(min(3n, 1n, 2n), 1n)
+    assert.strictEqual(min([3n, 1n, 2n]), 1n)
+    assert.strictEqual(min(new DenseMatrix([3n, 1n, 2n])), 1n)
+    assert.strictEqual(min([[1n, 2n], [3n, 4n]]), 1n)
+  })
+
+  it('should return the min of bigints larger than the max safe integer without losing precision', function () {
+    assert.strictEqual(min(123123123123123123123n, 123123123123123123124n), 123123123123123123123n)
+    assert.strictEqual(min([123123123123123123123n, 99999999999999999999n, 123123123123123123124n]), 99999999999999999999n)
+  })
+
+  it('should return the min of mixed bigints and numbers', function () {
+    assert.strictEqual(min(1n, 0.5), 0.5)
+    assert.strictEqual(min(0n, 0.5), 0n)
+    assert.strictEqual(min([1n, 0.5]), 0.5)
+  })
+
+  it('should return the min of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.evaluate('min(3, 1, 2)'), 1n)
+    assert.strictEqual(bigmath.evaluate('min([3, 1, 2])'), 1n)
+    assert.strictEqual(bigmath.evaluate('min(1, 0.5)'), 0.5)
+  })
+
   it('should return the min element from a vector array', function () {
     assert.strictEqual(min(new DenseMatrix([1, 3, 5, -5, 2])), -5)
   })

@@ -22,6 +22,22 @@ describe('bitOr', function () {
     assert.strictEqual(bitOr(-5n, -3n), -1n)
   })
 
+  it('should bitwise or two bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.evaluate('12 | 10'), 14n)
+    assert.strictEqual(bigmath.evaluate('bitOr(12, 10)'), 14n)
+    assert.strictEqual(bigmath.evaluate('123123123123123123123 | 99999999999999999999'),
+      123123123123123123123n | 99999999999999999999n)
+  })
+
+  it('should evaluate bitwise or lazily (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    const scope = {}
+    bigmath.evaluate('(a = -1) | (b = 1)', scope)
+    assert.deepStrictEqual(scope, { a: -1n })
+    assert.strictEqual(bigmath.evaluate('-1 | undefined'), -1n)
+  })
+
   it('should bitwise or booleans', function () {
     assert.strictEqual(bitOr(true, true), 1)
     assert.strictEqual(bitOr(true, false), 1)

@@ -22,6 +22,22 @@ describe('bitAnd', function () {
     assert.strictEqual(bitAnd(-5n, -3n), -7n)
   })
 
+  it('should bitwise and two bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.evaluate('12 & 10'), 8n)
+    assert.strictEqual(bigmath.evaluate('bitAnd(12, 10)'), 8n)
+    assert.strictEqual(bigmath.evaluate('123123123123123123123 & 99999999999999999999'),
+      123123123123123123123n & 99999999999999999999n)
+  })
+
+  it('should evaluate bitwise and lazily (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    const scope = {}
+    bigmath.evaluate('(a = 0) & (b = 1)', scope)
+    assert.deepStrictEqual(scope, { a: 0n })
+    assert.strictEqual(bigmath.evaluate('0 & undefined'), 0n)
+  })
+
   it('should bitwise and booleans', function () {
     assert.strictEqual(bitAnd(true, true), 1)
     assert.strictEqual(bitAnd(true, false), 0)

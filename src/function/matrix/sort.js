@@ -5,8 +5,10 @@ const name = 'sort'
 const dependencies = ['typed', 'matrix', 'compare', 'compareNatural']
 
 export const createSort = /* #__PURE__ */ factory(name, dependencies, ({ typed, matrix, compare, compareNatural }) => {
-  const compareAsc = compare
-  const compareDesc = (a, b) => -compare(a, b)
+  // the comparator of Array.sort must return a number, so we convert the
+  // result of compare (which can be a bigint, BigNumber, or Fraction) to a number
+  const compareAsc = (a, b) => Number(compare(a, b))
+  const compareDesc = (a, b) => -Number(compare(a, b))
 
   /**
    * Sort the items in a matrix.
@@ -52,12 +54,12 @@ export const createSort = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
 
     'Array, function': function (x, _comparator) {
       _arrayIsVector(x)
-      return x.sort(_comparator)
+      return x.sort(_toNumberComparator(_comparator))
     },
 
     'Matrix, function': function (x, _comparator) {
       _matrixIsVector(x)
-      return matrix(x.toArray().sort(_comparator), x.storage())
+      return matrix(x.toArray().sort(_toNumberComparator(_comparator)), x.storage())
     },
 
     'Array, string': function (x, order) {
@@ -70,6 +72,17 @@ export const createSort = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
       return matrix(x.toArray().sort(_comparator(order)), x.storage())
     }
   })
+
+  /**
+   * Wrap a comparator function so that its return value is converted to a
+   * number, since the comparator of Array.sort must return a number and
+   * comparators like `compare` can return a bigint, BigNumber, or Fraction.
+   * @param {Function} comparator
+   * @return {Function} Returns a comparator function returning a number
+   */
+  function _toNumberComparator (comparator) {
+    return (a, b) => Number(comparator(a, b))
+  }
 
   /**
    * Get the comparator for given order ('asc', 'desc', 'natural')

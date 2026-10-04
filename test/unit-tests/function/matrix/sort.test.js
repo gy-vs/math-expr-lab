@@ -36,6 +36,36 @@ describe('sort', function () {
       ['Tom', 'Sara', 'Langdon'])
   })
 
+  it('should sort an array with bigints', function () {
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n]), [1n, 2n, 3n])
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n], 'asc'), [1n, 2n, 3n])
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n], 'desc'), [3n, 2n, 1n])
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n], 'natural'), [1n, 2n, 3n])
+  })
+
+  it('should sort bigints larger than the max safe integer without losing precision', function () {
+    assert.deepStrictEqual(
+      math.sort([123123123123123123123n, 99999999999999999999n, 123123123123123123124n]),
+      [99999999999999999999n, 123123123123123123123n, 123123123123123123124n])
+  })
+
+  it('should sort a Matrix with bigints', function () {
+    assert.deepStrictEqual(math.sort(math.matrix([3n, 1n, 2n])), math.matrix([1n, 2n, 3n]))
+  })
+
+  it('should sort an array with bigints using a custom compare function', function () {
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n], math.compare), [1n, 2n, 3n])
+    assert.deepStrictEqual(math.sort([3n, 1n, 2n], (a, b) => b - a), [3n, 2n, 1n])
+  })
+
+  it('should sort an array with bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.deepStrictEqual(bigmath.evaluate('sort([3, 1, 2])'), bigmath.matrix([1n, 2n, 3n]))
+    assert.deepStrictEqual(bigmath.evaluate('sort([3, 1, 2], "desc")'), bigmath.matrix([3n, 2n, 1n]))
+    assert.deepStrictEqual(bigmath.evaluate('sort([3, 1, 2], "natural")'), bigmath.matrix([1n, 2n, 3n]))
+    assert.deepStrictEqual(bigmath.evaluate('sort([3, 1, 2], compare)'), bigmath.matrix([1n, 2n, 3n]))
+  })
+
   it('should throw an error if called with a multi dimensional matrix', function () {
     assert.throws(function () { math.sort(math.matrix([[1, 2], [3, 4]])) }, /One dimensional matrix expected/)
   })

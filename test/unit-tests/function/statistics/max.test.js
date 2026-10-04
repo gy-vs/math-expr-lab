@@ -19,6 +19,33 @@ describe('max', function () {
       new BigNumber(5))
   })
 
+  it('should return the max of bigints', function () {
+    assert.strictEqual(max(3n), 3n)
+    assert.strictEqual(max(1n, 3n), 3n)
+    assert.strictEqual(max(1n, 3n, 5n, 2n, -5n), 5n)
+    assert.strictEqual(max([1n, 3n, 5n, 2n, -5n]), 5n)
+    assert.strictEqual(max(new DenseMatrix([1n, 3n, 5n, 2n, -5n])), 5n)
+    assert.strictEqual(max([[1n, 2n], [3n, 4n]]), 4n)
+  })
+
+  it('should return the max of bigints larger than the max safe integer without losing precision', function () {
+    assert.strictEqual(max(123123123123123123123n, 123123123123123123124n), 123123123123123123124n)
+    assert.strictEqual(max([123123123123123123123n, 99999999999999999999n, 123123123123123123124n]), 123123123123123123124n)
+  })
+
+  it('should return the max of mixed bigints and numbers', function () {
+    assert.strictEqual(max(2n, 3.5), 3.5)
+    assert.strictEqual(max(4n, 3.5), 4n)
+    assert.strictEqual(max([1n, 2.5]), 2.5)
+  })
+
+  it('should return the max of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.evaluate('max([3, 1, 2])'), 3n)
+    assert.strictEqual(bigmath.evaluate('max([1, 2; 3, 4])'), 4n)
+    assert.strictEqual(bigmath.evaluate('max(2, 3.5)'), 3.5)
+  })
+
   it('should return the max of strings by their numerical value', function () {
     assert.strictEqual(max('10', '3', '4', '2'), 10)
     assert.strictEqual(max('10'), 10)
