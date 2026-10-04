@@ -9,6 +9,25 @@ export const createSort = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
   const compareDesc = (a, b) => -compare(a, b)
 
   /**
+   * Wrap a comparator so its result is always a plain number (-1, 0, or 1).
+   * Array.prototype.sort coerces the return value with Number(), which throws
+   * on bigint values, so bigint results (as returned by math.compare in
+   * bigint config) must be normalized.
+   * @param {Function} comparator
+   * @returns {Function}
+   * @private
+   */
+  function _numberComparator (comparator) {
+    return function (a, b) {
+      const c = comparator(a, b)
+      if (typeof c === 'bigint') {
+        return c === 0n ? 0 : (c > 0n ? 1 : -1)
+      }
+      return c
+    }
+  }
+
+  /**
    * Sort the items in a matrix.
    *
    * Syntax:
@@ -42,32 +61,32 @@ export const createSort = /* #__PURE__ */ factory(name, dependencies, ({ typed, 
   return typed(name, {
     Array: function (x) {
       _arrayIsVector(x)
-      return x.sort(compareAsc)
+      return x.sort(_numberComparator(compareAsc))
     },
 
     Matrix: function (x) {
       _matrixIsVector(x)
-      return matrix(x.toArray().sort(compareAsc), x.storage())
+      return matrix(x.toArray().sort(_numberComparator(compareAsc)), x.storage())
     },
 
     'Array, function': function (x, _comparator) {
       _arrayIsVector(x)
-      return x.sort(_comparator)
+      return x.sort(_numberComparator(_comparator))
     },
 
     'Matrix, function': function (x, _comparator) {
       _matrixIsVector(x)
-      return matrix(x.toArray().sort(_comparator), x.storage())
+      return matrix(x.toArray().sort(_numberComparator(_comparator)), x.storage())
     },
 
     'Array, string': function (x, order) {
       _arrayIsVector(x)
-      return x.sort(_comparator(order))
+      return x.sort(_numberComparator(_comparator(order)))
     },
 
     'Matrix, string': function (x, order) {
       _matrixIsVector(x)
-      return matrix(x.toArray().sort(_comparator(order)), x.storage())
+      return matrix(x.toArray().sort(_numberComparator(_comparator(order))), x.storage())
     }
   })
 

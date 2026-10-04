@@ -50,6 +50,28 @@ describe('compareNatural', function () {
     assert.strictEqual(typeof compareNatural(bignumber(-2), bignumber(2)), 'number')
   })
 
+  it('should compare two bigints', function () {
+    assert.strictEqual(compareNatural(2n, 3n), -1)
+    assert.strictEqual(compareNatural(2n, 2n), 0)
+    assert.strictEqual(compareNatural(3n, 1n), 1)
+    assert.strictEqual(compareNatural(0n, 0n), 0)
+    assert.strictEqual(compareNatural(-2n, 2n), -1)
+    assert.strictEqual(compareNatural(-2n, -3n), 1)
+    assert.strictEqual(compareNatural(-3n, -2n), -1)
+    assert.strictEqual(typeof compareNatural(3n, 1n), 'number')
+
+    // integers larger than 2^53 must be compared without conversion to number
+    const large = 9007199254740993n
+    assert.strictEqual(compareNatural(large + 1n, large), 1)
+    assert.strictEqual(compareNatural(large, large), 0)
+    assert.strictEqual(compareNatural(large, large + 1n), -1)
+  })
+
+  it('should compare mixed bigints and numbers', function () {
+    assert.strictEqual(compareNatural(3n, 1), 1)
+    assert.strictEqual(compareNatural(1, 3n), -1)
+  })
+
   it('should compare two fractions', function () {
     const a = math.fraction(1, 3)
     const b = math.fraction(1, 6)

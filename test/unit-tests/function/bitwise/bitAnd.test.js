@@ -22,6 +22,15 @@ describe('bitAnd', function () {
     assert.strictEqual(bitAnd(-5n, -3n), -7n)
   })
 
+  it('should bitwise and bigints via the expression transform (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.evaluate('12 & 10'), 8n)
+    assert.strictEqual(bigmath.evaluate('bitAnd(12, 10)'), 8n)
+    assert.strictEqual(bigmath.evaluate('53 & 131'), 1n)
+    assert.strictEqual(bigmath.evaluate('-5 & -3'), -7n)
+    assert.deepStrictEqual(bigmath.evaluate('[1, 12, 31] & 42').toArray(), [0n, 8n, 10n])
+  })
+
   it('should bitwise and booleans', function () {
     assert.strictEqual(bitAnd(true, true), 1)
     assert.strictEqual(bitAnd(true, false), 0)

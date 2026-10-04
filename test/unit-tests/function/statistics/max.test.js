@@ -38,6 +38,42 @@ describe('max', function () {
     assert.strictEqual(bigmath.max('2.5', '4'), 4n) // fallback to number
   })
 
+  it('should return the max of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.max(3n, 1n, 2n), 3n)
+    assert.strictEqual(bigmath.max(-3n, -1n, -2n), -1n)
+    assert.strictEqual(bigmath.max([3n, 1n, 2n]), 3n)
+    assert.strictEqual(typeof bigmath.max([3n, 1n, 2n]), 'bigint')
+  })
+
+  it('should return the max element from an array or matrix of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.max([[1n, 2n], [3n, 4n]]), 4n)
+    assert.strictEqual(bigmath.max(bigmath.matrix([3n, 1n, 2n])), 3n)
+    assert.deepStrictEqual(bigmath.max([[1n, 5n], [4n, 3n]], 0), [4n, 5n])
+    assert.deepStrictEqual(bigmath.max([[1n, 5n], [4n, 3n]], 1), [5n, 4n])
+  })
+
+  it('should return the max of bigints without loss of precision for integers larger than 2^53 (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    const large = 9007199254740993n // exceeds Number.MAX_SAFE_INTEGER
+    assert.strictEqual(bigmath.max(large, large + 10n, large + 3n), large + 10n)
+    assert.strictEqual(bigmath.max([large, large + 10n, large + 3n]), large + 10n)
+  })
+
+  it('should return the max of mixed bigints and numbers (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.max(2n, 3.5), 3.5)
+    assert.strictEqual(bigmath.max([1n, 2.5]), 2.5)
+    assert.strictEqual(bigmath.max(4n, 3.5), 4n)
+  })
+
+  it('should return NaN if a bigint array contains NaN (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert(Number.isNaN(bigmath.max([1n, NaN])))
+    assert(Number.isNaN(bigmath.max(1n, NaN)))
+  })
+
   it('should return the max element from a vector', function () {
     assert.strictEqual(max(new DenseMatrix([1, 3, 5, 2, -5])), 5)
   })

@@ -33,6 +33,41 @@ describe('min', function () {
     assert.strictEqual(bigmath.min('2.5', '4'), 2.5) // fallback to number
   })
 
+  it('should return the min of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.min(3n, 1n, 2n), 1n)
+    assert.strictEqual(bigmath.min(-3n, -1n, -2n), -3n)
+    assert.strictEqual(bigmath.min([3n, 1n, 2n]), 1n)
+    assert.strictEqual(typeof bigmath.min([3n, 1n, 2n]), 'bigint')
+  })
+
+  it('should return the min element from an array or matrix of bigints (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.min([[1n, 2n], [3n, 4n]]), 1n)
+    assert.strictEqual(bigmath.min(bigmath.matrix([3n, 1n, 2n])), 1n)
+    assert.deepStrictEqual(bigmath.min([[1n, 5n], [4n, 3n]], 0), [1n, 3n])
+    assert.deepStrictEqual(bigmath.min([[1n, 5n], [4n, 3n]], 1), [1n, 3n])
+  })
+
+  it('should return the min of bigints without loss of precision for integers larger than 2^53 (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    const large = 9007199254740993n // exceeds Number.MAX_SAFE_INTEGER
+    assert.strictEqual(bigmath.min(large, large + 10n, large + 3n), large)
+    assert.strictEqual(bigmath.min([large, large + 10n, large + 3n]), large)
+  })
+
+  it('should return the min of mixed bigints and numbers (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert.strictEqual(bigmath.min(1n, 0.5), 0.5)
+    assert.strictEqual(bigmath.min([1n, 2.5]), 1n)
+  })
+
+  it('should return NaN if a bigint array contains NaN (with bigint config)', function () {
+    const bigmath = math.create({ number: 'bigint' })
+    assert(Number.isNaN(bigmath.min([1n, NaN])))
+    assert(Number.isNaN(bigmath.min(1n, NaN)))
+  })
+
   it('should return the min element from a vector', function () {
     assert.strictEqual(min([1, 3, 5, -5, 2]), -5)
   })

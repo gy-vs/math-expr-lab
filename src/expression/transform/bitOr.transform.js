@@ -11,7 +11,7 @@ export const createBitOrTransform = /* #__PURE__ */ factory(name, dependencies, 
   function bitOrTransform (args, math, scope) {
     const condition1 = args[0].compile().evaluate(scope)
     if (!isCollection(condition1)) {
-      if (isNaN(condition1)) {
+      if (typeof condition1 === 'number' && isNaN(condition1)) {
         return NaN
       }
       if (condition1 === (-1)) {

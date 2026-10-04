@@ -87,11 +87,11 @@ export const createCompareNatural = /* #__PURE__ */ factory(name, dependencies, 
     let c
 
     // numeric types
-    if ((typeX === 'number' || typeX === 'BigNumber' || typeX === 'Fraction') &&
-        (typeY === 'number' || typeY === 'BigNumber' || typeY === 'Fraction')) {
+    if ((typeX === 'number' || typeX === 'BigNumber' || typeX === 'Fraction' || typeX === 'bigint') &&
+        (typeY === 'number' || typeY === 'BigNumber' || typeY === 'Fraction' || typeY === 'bigint')) {
       c = compare(x, y)
       if (c.toString() !== '0') {
-        // c can be number, BigNumber, or Fraction
+        // c can be number, BigNumber, Fraction, or bigint
         return c > 0 ? 1 : -1 // return a number
       } else {
         return naturalSort(typeX, typeY)

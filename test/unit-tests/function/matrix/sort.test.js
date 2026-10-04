@@ -36,6 +36,50 @@ describe('sort', function () {
       ['Tom', 'Sara', 'Langdon'])
   })
 
+  describe('bigint config', function () {
+    const bigmath = math.create({ number: 'bigint' })
+
+    it('should sort an array with bigints ascending', function () {
+      assert.deepStrictEqual(bigmath.sort([3n, 1n, 2n]), [1n, 2n, 3n])
+    })
+
+    it('should sort an array with bigints descending', function () {
+      assert.deepStrictEqual(bigmath.sort([3n, 1n, 2n], 'desc'), [3n, 2n, 1n])
+    })
+
+    it('should sort an array with bigints naturally', function () {
+      assert.deepStrictEqual(bigmath.sort([3n, 1n, 2n], 'natural'), [1n, 2n, 3n])
+    })
+
+    it('should sort an array with bigints using compare as a custom compare function', function () {
+      assert.deepStrictEqual(bigmath.sort([3n, 1n, 2n], bigmath.compare), [1n, 2n, 3n])
+      assert.deepStrictEqual(
+        bigmath.sort([3n, 1n, 2n], (a, b) => -bigmath.compare(a, b)), [3n, 2n, 1n])
+    })
+
+    it('should sort a Matrix with bigints', function () {
+      assert.deepStrictEqual(bigmath.sort(bigmath.matrix([3n, 1n, 2n])),
+        bigmath.matrix([1n, 2n, 3n]))
+      assert.deepStrictEqual(bigmath.sort(bigmath.matrix([3n, 1n, 2n]), 'desc'),
+        bigmath.matrix([3n, 2n, 1n]))
+      assert.deepStrictEqual(bigmath.sort(bigmath.matrix([3n, 1n, 2n]), 'natural'),
+        bigmath.matrix([1n, 2n, 3n]))
+    })
+
+    it('should keep bigint values as bigint when sorting', function () {
+      const sorted = bigmath.sort([3n, 1n, 2n])
+      assert.ok(sorted.every(value => typeof value === 'bigint'))
+    })
+
+    it('should sort bigints larger than 2^53 without loss of precision', function () {
+      const large = 9007199254740993n // exceeds Number.MAX_SAFE_INTEGER
+      assert.deepStrictEqual(bigmath.sort([large + 2n, large, large + 1n]),
+        [large, large + 1n, large + 2n])
+      assert.deepStrictEqual(bigmath.sort([large + 2n, large, large + 1n], 'desc'),
+        [large + 2n, large + 1n, large])
+    })
+  })
+
   it('should throw an error if called with a multi dimensional matrix', function () {
     assert.throws(function () { math.sort(math.matrix([[1, 2], [3, 4]])) }, /One dimensional matrix expected/)
   })
